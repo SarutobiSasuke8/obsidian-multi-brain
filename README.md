@@ -4,7 +4,7 @@
 
 A set of templates, operating contracts, and agent seeds for running a multi-brand Obsidian setup where a coding agent handles the filing for you.
 
-![Multi-Brain Management System](canvas/preview.png)
+![Multi-Brain Management System](Multi-Brain%20Management%20System%20-%20Epic%20Background.png)
 
 ---
 
