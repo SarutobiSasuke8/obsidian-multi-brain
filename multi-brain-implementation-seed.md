@@ -1,19 +1,7 @@
 ---
 title: "Multi-Brain Implementation Seed"
 type: agent-seed
-status: living
-mutability: living
-created: 2026-05-12
-owner: "[[Alexei Udall]]"
-tags:
-  - vault-system
-  - agent-seed
-  - implementation
-  - multi-brain
-related:
-  - "[[Multi-Brain Management System]]"
-  - "[[Multi-Brain Management System.canvas]]"
-  - "[[vault-seed-CLAUDE]]"
+version: "1.0"
 ---
 
 # Multi-Brain Implementation Seed

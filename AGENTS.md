@@ -1,6 +1,6 @@
 # AGENTS.md — Multi-Brain Operating Contract (Public Template)
 
-*This is a generalised, public version of the operating contract I run at the root of my own Obsidian vault. Drop it into your own vault, replace the placeholders, delete sections you do not use, and live with it for two weeks before tuning. Companion to the [Multi-Brain Management System post](./Multi-Brain%20Management%20System.md) and the [canvas](./Multi-Brain%20Management%20System.canvas).*
+*This is a generalised, public version of the operating contract I run at the root of my own Obsidian vault. Drop it into your own vault, replace the placeholders, delete sections you do not use, and live with it for two weeks before tuning. See [README.md](./README.md) for the full system overview.*
 
 ---
 
@@ -304,4 +304,4 @@ If a rule in this file does not match what the agent actually does after a week,
 
 ---
 
-*AGENTS.md template v1.0 — based on a working multi-brand vault. Companion to [Multi-Brain Management System](./Multi-Brain%20Management%20System.md), [the canvas](./Multi-Brain%20Management%20System.canvas), and [the implementation seed](./Multi-Brain%20Implementation%20Seed.md).*
+*AGENTS.md template v1.0 — based on a working multi-brand vault. Companion to [README.md](./README.md), [the canvas](./canvas/multi-brain-management-system.canvas), and [the implementation seed](./multi-brain-implementation-seed.md).*

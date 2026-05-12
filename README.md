@@ -4,6 +4,8 @@
 
 A set of templates, operating contracts, and agent seeds for running a multi-brand Obsidian setup where a coding agent handles the filing for you.
 
+![Multi-Brain Management System](canvas/preview.png)
+
 ---
 
 ## The problem
@@ -136,10 +138,21 @@ No. It is the routing layer underneath all of those. You can run any of them ins
 
 ---
 
+## Contributing
+
+PRs welcome for:
+
+- New pattern examples (different satellite types, different agent frameworks)
+- Additional templates (research note, person/CRM note, content draft)
+- Codex, Cursor, or other agent-specific variants of `AGENTS.md`
+- Real-world satellite setups that show the pattern in a different context
+
+Keep additions concrete. Vague "improvements" without a working example are hard to review.
+
 ## Licence
 
 MIT. Use it, adapt it, build on it.
 
 ---
 
-*Built by a solo operator running multiple brands with AI as the force multiplier. Contributions and pattern additions welcome.*
+*Built by a solo operator running multiple brands with AI as the force multiplier.*
