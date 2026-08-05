@@ -1,6 +1,8 @@
-# The four sync patterns
+# The sync patterns
 
 A quick reference for picking the right pattern when registering a new satellite.
+
+Patterns A to D are the original four and they all push one way. Pattern E is the return path, added once satellites started producing material of their own. Start with A to D. Add E only when something other than you is writing in a satellite.
 
 ---
 
@@ -38,6 +40,25 @@ A quick reference for picking the right pattern when registering a new satellite
 
 **Watch for:** notes that cannot be cleanly stripped without gutting the content. When the stripping pass would remove more than it keeps, do not mirror. Flag for deliberate authoring in the destination instead.
 
+### Pattern C-strict: the de-ego'd variant
+
+**Use when:** the satellite is a shared knowledge base that colleagues, a team, or partners read. Not public, but not yours either.
+
+Standard Pattern C strips commercial exposure: names, money, competitive framing. C-strict strips **you** as well.
+
+Remove on top of the normal strip:
+
+- first-person voice and personal narrative
+- your own opinions marked as opinions, unless the note exists to record a position
+- personal working preferences and habits
+- references to your other ventures and projects
+- your relationship history with the people mentioned
+- anything that only makes sense if the reader knows how you think
+
+What is left should read as though the organisation wrote it, not as though someone shared their private notes with the team. This is a harder edit than the commercial strip and it fails more often. When it fails, author directly in the destination.
+
+**Watch for:** the tempting middle ground where you strip the money but keep the voice. It reads as an internal memo that escaped, and colleagues treat it as your opinion rather than as shared reference material.
+
 ---
 
 ## Pattern D: Read-only feeder
@@ -52,6 +73,28 @@ A quick reference for picking the right pattern when registering a new satellite
 
 ---
 
+## Pattern E: Return path
+
+**Use when:** something other than you writes in the satellite. An agent with write access, a colleague, a research tool depositing exports, a review queue aimed at you.
+
+**Default behaviour:** a governed ingest, not a sync. One deliberate, logged, refusable operation per run. Material comes back into the central brain carrying provenance frontmatter that records the satellite, the exact source path, the authoring agent or person, and the ingest date.
+
+**Typical scope:** agent proposals awaiting a verdict, research output, intelligence and signals, work product authored in the satellite.
+
+**Watch for:** treating it as bidirectional sync. It is not. The central brain still wins every disagreement; the ingest changes what the central brain knows, not who decides. Also watch for the loop: never discover from the folders you mirror outbound, or you will re-ingest your own material into itself.
+
+Full protocol in [backflow.md](./backflow.md).
+
+---
+
+## The agent-context satellite
+
+Not a sync pattern so much as a different kind of destination: a satellite whose reader is a fleet of agents rather than a person. Tiered by blast radius, fail-closed on access, validated before every push, and never hand-edited. See [agent-context-satellites.md](./agent-context-satellites.md).
+
+Most people will never need this. You need it when agents run somewhere other than your laptop and need to know things about your business without you pasting context each time.
+
+---
+
 ## Choosing between patterns
 
 | Question | If yes |
@@ -59,7 +102,20 @@ A quick reference for picking the right pattern when registering a new satellite
 | Does the satellite have the same folder structure as the central vault? | Pattern A |
 | Does the satellite have its own structure and a different audience? | Pattern B |
 | Is the satellite one step from public, requiring a strip? | Pattern C |
+| Is the satellite a shared team surface where your voice should not appear? | Pattern C-strict |
 | Should writes always be human-reviewed before landing? | Pattern D |
 | Does the satellite need both a strip AND a PR review? | Pattern C, paired with a branch/PR workflow in the satellite repo |
+| Does anything other than you write in the satellite? | Add Pattern E on top of whatever else applies |
+| Is the reader an agent rather than a person? | Agent-context satellite |
 
-A satellite can graduate from one pattern to another. If a Pattern B satellite starts receiving near-public content regularly, add Pattern C rules for that content slice. Update `AGENTS.md` and the satellite's entry-point note.
+Patterns compose. A satellite can be Pattern C outbound and Pattern E inbound at the same time, and usually is once agents are involved.
+
+A satellite can also graduate. If a Pattern B satellite starts receiving near-public content regularly, add Pattern C rules for that content slice. Update `AGENTS.md` and the satellite's entry-point note.
+
+---
+
+## One publication owner per path
+
+Independent of pattern: if two processes can commit to the same folder in a satellite, you will get duplicate writes and conflicting history, and you will notice weeks later.
+
+Overlapping live write access is fine. Overlapping publication rights are not. Give every versioned path exactly one owner and write it down in the entry-point note.

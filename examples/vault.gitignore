@@ -1,0 +1,52 @@
+# .gitignore for an Obsidian vault backed up to a private git repo
+# Copy to your vault root as `.gitignore` before the first commit.
+#
+# Read docs/security.md first. This file reduces accidental commits.
+# It does not make an unsafe vault safe, and it cannot help with a
+# credential that someone typed into a note.
+
+# Obsidian local state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.trash/
+
+# Keep the rest of .obsidian/ if you want your plugin and theme
+# config versioned. Uncomment the next line if you do not.
+# .obsidian/
+
+# OS noise
+*.DS_Store
+Thumbs.db
+desktop.ini
+
+# Credentials and environment files.
+# These should not exist in a vault at all. This is a second line of defence.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+secrets.yaml
+secrets.yml
+
+# Common accidental drops
+*.kdbx
+*recovery-codes*
+*backup-codes*
+
+# Large binaries that bloat history. Prefer a separate attachments store.
+*.mp4
+*.mov
+*.zip
+*.dmg
+*.iso
+
+# Scratch space
+tmp/
+scratch/

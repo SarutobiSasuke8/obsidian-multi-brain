@@ -21,9 +21,12 @@ Reference this note in `AGENTS.md` under the registered satellites table.
 | Field | Value |
 |---|---|
 | Satellite root | `[absolute path]` |
-| Sync pattern | [A / B / C / D] |
-| Audience | [internal / partner-facing / public-facing] |
+| Sync pattern (outbound) | [A / B / C / C-strict / D] |
+| Return path (inbound) | [none / Pattern E] |
+| Audience | [internal / team / partner-facing / public-facing / agent fleet] |
 | Folder shape | [mirrors central vault / has own structure] |
+| Who else writes here | [nobody / named agents / named people / automated exports] |
+| Publication owner per path | [one owner per versioned path; list them] |
 
 ---
 
@@ -81,6 +84,32 @@ How this brand's main-vault folders map to satellite folders:
 
 ---
 
+## Return path (Pattern E only)
+
+*Delete this section if nothing other than you writes in this satellite.*
+
+| Field | Value |
+|---|---|
+| Writable folders to sweep | `[paths]` |
+| Folders never swept | `[the outbound mirror paths, so the ingest cannot loop]` |
+| Authors and their folders | `[folder]` owned by `[agent or person id]` |
+| Ingest ledger | `[path to the ledger note]` |
+| Quarantine destination | `[path for ambiguous items]` |
+
+Judge test for this satellite: would a future decision go differently because this exists in the central vault? If no, refuse as residue.
+
+Provenance stamped on every ingested file:
+
+```yaml
+source_vault: [this satellite]
+source_path: "[exact relative path]"
+source_agent: [resolved author]
+ingested: YYYY-MM-DD
+ingested_by: [ingesting agent]
+```
+
+---
+
 ## Notes and quirks
 
 [Document any slug conventions, naming differences, or one-off rules for this satellite that the agent needs to know.]
@@ -91,3 +120,5 @@ How this brand's main-vault folders map to satellite folders:
 
 - `AGENTS.md` — operating contract (registered satellites table)
 - [[Multi-Brain Management System]] — the human-readable map of the full system
+- `docs/patterns.md` — what each pattern means
+- `docs/backflow.md` — the return path protocol, if this satellite uses one

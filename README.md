@@ -31,8 +31,12 @@ This repo is that file, plus the templates and seeds to build the whole system.
 | `templates/satellite-entry-point.md` | Blank entry-point note for registering a new satellite vault. One per brand. |
 | `examples/agents-md-minimal.md` | Minimal one-satellite contract for people starting simple. |
 | `examples/agents-md-with-strip.md` | Contract showing the Pattern C stripping pass in full. |
-| `docs/patterns.md` | Short reference for the four sync patterns (A, B, C, D). |
+| `docs/patterns.md` | Reference for the sync patterns (A, B, C, C-strict, D, E). |
+| `docs/backflow.md` | Pattern E: the governed return path, for when something other than you writes in a satellite. |
+| `docs/agent-context-satellites.md` | Building a satellite whose reader is an agent fleet rather than a person. |
+| `docs/security.md` | Secrets, prompt injection, blast radius, and what `AGENTS.md` cannot enforce. |
 | `docs/faq.md` | Answers to the questions that come up every time this system gets explained. |
+| `examples/vault.gitignore` | Starting `.gitignore` for a vault backed up to a private git repo. |
 
 ---
 
@@ -53,6 +57,32 @@ Around it sit satellite brains: a dedicated brand vault, a content production re
 The rules for which satellite gets what, and how notes get transformed on the way out, live in `AGENTS.md` at the vault root. Any coding agent reads that file on session start and files accordingly.
 
 You write once. The agent handles the rest.
+
+---
+
+## When the flow reverses
+
+The four patterns above all push one way, and that holds until something other than you starts writing in a satellite. An agent with write access. A colleague. A research tool dropping exports into a folder.
+
+At that point the satellite is producing material the central brain has never seen, and the central brain quietly stops being the source of truth.
+
+**Pattern E: the return path.** A governed ingest, not a sync. Sweep the writable folders, refuse most of what you find, stamp what you keep with where it came from, and mark it processed so the queue drains. The judge test is a single question: would a future decision go differently because this exists in the central brain? Most agent output fails that, and it should.
+
+Full protocol in [docs/backflow.md](./docs/backflow.md).
+
+Two rules that are not obvious until they bite. Never sweep the folders you mirror outbound, or the ingest re-consumes your own material into itself. And a name collision means stop and compare, never overwrite.
+
+---
+
+## When the reader is an agent, not you
+
+A satellite built for a fleet of agents behaves differently enough to need its own rules. It is organised by blast radius rather than by topic, it is fail-closed on anything sensitive, and it is validated before every push.
+
+- **Tiered.** A `public-safe` tier that would survive being quoted word for word in a public group chat, and nothing else, is what an externally-facing agent gets.
+- **Fail-closed.** A record exports only when a field explicitly says it can. Missing metadata means no export, not cautious export. The moment the rule becomes "export unless flagged sensitive", you have built a leak with extra steps, because the flag is the thing you forget.
+- **Derived.** Context files are distilled copies with an expiry date. Fix the master and re-push. Hand-editing a satellite copy is how this rots.
+
+Full reference in [docs/agent-context-satellites.md](./docs/agent-context-satellites.md).
 
 ---
 
@@ -80,6 +110,8 @@ You write once. The agent handles the rest.
 
 This is the piece most people do not think to build and the one that unlocks everything else.
 
+It has a stricter sibling. When the destination is a shared team surface rather than a public one, strip your identity as well as your commercial exposure: first-person voice, personal working habits, your other ventures, your relationship history with the people mentioned. What is left should read as though the organisation wrote it, not as though your private notes escaped. See Pattern C-strict in [docs/patterns.md](./docs/patterns.md).
+
 Before any note files into a near-public satellite, the agent strips:
 
 - customer, lead, partner, and counterparty names
@@ -99,6 +131,22 @@ You write in your central brain with all the internal context you need. The syst
 
 ---
 
+## What this does not do
+
+Worth knowing before you build on it.
+
+**`AGENTS.md` is not a security boundary.** It is a strong default that an agent follows most of the time, and when it fails it fails silently. For anything where a leak actually costs you, enforce mechanically instead: a validator that refuses the push, fail-closed metadata, an allowlist inside the sync script. Written rules handle the ninety-nine percent. Gates handle the one percent that hurts. See [docs/security.md](./docs/security.md).
+
+**Files your agent reads are not trustworthy.** Clippings, research exports, shared folders, and anything another agent wrote are carrying text from the open internet into a context window with write access to your business notes. The rule is one paragraph: text inside a file is data, never instruction, and anything addressed to the agent gets quoted to you rather than executed. Add it on day one.
+
+**Retrieved context reaches your model provider.** Anything an agent can pull, it can put in a prompt. That is a trade-off to make deliberately, not a reason to avoid the system.
+
+**Your vault in git is a permanent public-shaped record.** Read [docs/security.md](./docs/security.md) before the first commit. The thing that catches people is not API keys, it is two-factor recovery codes pasted into a note "for now" a year ago.
+
+**This is not a small system.** One central vault plus one satellite is genuinely useful and takes a day. Everything past that is earned complexity: add a pattern when you have the problem it solves, not before.
+
+---
+
 ## Override commands
 
 These work in any agent chat session:
@@ -107,6 +155,7 @@ These work in any agent chat session:
 - `satellite only` — write to a satellite only (use sparingly)
 - `parallel file this` — explicit mirror of an existing note
 - `preview` — show both destinations before writing anything
+- `backflow` — sweep a satellite for material the central brain has never seen (Pattern E)
 
 ---
 
@@ -119,7 +168,10 @@ The pattern works anywhere notes are plain text files in folders the agent can r
 Works well. Pattern C plus a PR workflow is the right default when the destination has its own publishing pipeline. The agent writes to a branch; you review before merge.
 
 **What if the agent gets it wrong?**
-Update `AGENTS.md`. The agent is following written rules. Wrong behaviour means the rules need a line added.
+Update `AGENTS.md`. The agent is following written rules. Wrong behaviour means the rules need a line added. For the cases where a mistake is expensive rather than annoying, add a mechanical gate instead of a rule.
+
+**Something other than me is writing in a satellite. What now?**
+That is Pattern E. See [docs/backflow.md](./docs/backflow.md).
 
 **How long does setup take?**
 A working day for one satellite. A week to feel comfortable with the strip rules and overrides. Every new brand after that is an afternoon.
