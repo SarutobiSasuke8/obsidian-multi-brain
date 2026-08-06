@@ -2,7 +2,7 @@
 
 ## v1.1
 
-Everything here comes from running the system for a few more months and hitting things the first version did not anticipate.
+This release covers the cases the first version did not anticipate, mostly around what happens once agents can write as well as read.
 
 ### Added
 

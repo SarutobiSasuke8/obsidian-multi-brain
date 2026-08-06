@@ -2,7 +2,7 @@
 
 This system gives an agent read and write access to everything you know, and then routes some of it towards public surfaces. That is the whole point, and it is also the whole risk. These are the rules worth having before you need them.
 
-None of this is theoretical. Every item here comes from something that went wrong or nearly did.
+None of this is theoretical. These are the failure modes that show up repeatedly in systems shaped like this one.
 
 ---
 
