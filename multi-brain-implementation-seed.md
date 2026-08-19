@@ -65,7 +65,7 @@ For each satellite, propose one of the four patterns based on what the user said
 
 **Pattern C — stripped mirror.** Every write runs through a stripping pass that removes unsafe material. Use when the satellite is one step from public (content production repo, partner workspace, near-publish surface).
 
-**Pattern D — read-only feeder.** The agent can read the satellite for context but does not auto-write. Use for code repos, partner spaces, or surfaces where commit hygiene matters more than note flow.
+**Pattern D — mixed-authority agent bridge.** The central vault publishes curated `public-safe` context into `Context/public-safe/`; registered agents may write only inside named `Workspace/<mount>/` paths; relationship changes are append-only proposals under `CRM/Proposals/`. Use when an agent fleet needs shared grounding and bounded work without access to the private vault or canonical CRM.
 
 ### Phase 3: define the stripping pass
 
@@ -81,6 +81,16 @@ Document the answers in the satellite's entry-point note. The agent runs this pa
 
 The safety valve: if a note cannot be cleanly stripped without gutting it, the agent does not mirror. It flags the note for deliberate authoring in the destination instead.
 
+### Phase 3b: define Pattern D authority zones
+
+If any satellite uses Pattern D, configure all three zones before enabling writes:
+
+- `Context/public-safe/`: identify the central publication owner and the curated source notes. Internal context is not co-located in the shared bridge.
+- `Workspace/<mount>/`: name every writable mount, its purpose, allowed agent identities, retention rule, and Pattern E destination. Missing registration means no write.
+- `CRM/Proposals/`: define the proposal schema, reviewer or importer, canonical CRM boundary, and retention rule. Agents may propose; they never apply canonical relationship changes.
+
+Confirm that filesystem or repository permissions match the written boundary where possible. A folder name and `AGENTS.md` are operating controls, not a security boundary.
+
 ### Phase 4: write the operating contract
 
 Create `AGENTS.md` at the vault root if it does not exist. Add a section titled **Parallel filing into satellite vaults** that contains:
@@ -90,6 +100,7 @@ Create `AGENTS.md` at the vault root if it does not exist. Add a section titled 
 - Per-satellite mirror scope (what gets auto-filed)
 - Universal exclusions (what never auto-files anywhere)
 - The stripping pass spec for any Pattern C satellites
+- The context publisher, authorised workspace mounts, and CRM proposal gate for any Pattern D bridge
 - Override commands the user can speak in chat: `main only`, `satellite only`, `parallel file this`, `preview`
 - Agent behaviour: a numbered list of what the agent does on every write inside a brand-scoped folder
 
@@ -104,6 +115,7 @@ For each satellite, create an entry-point note inside the brand's main-vault hom
 - The mirror scope for this satellite specifically
 - The exclusions for this satellite specifically
 - For Pattern C: the strip and preserve lists
+- For Pattern D: the three authority zones, publication owner, workspace mount allowlist, and proposal-import gate
 - Any quirks (slug differences, folder remapping, conventions)
 
 Name the note something like `[Brand] Satellite Vault Sync` or `Satellite Vault Import Notes`.
@@ -194,7 +206,7 @@ On every write inside a brand-scoped folder, the agent:
 1. Detects which brand the note belongs to (by folder path)
 2. Resolves the equivalent destination in the registered satellite
 3. If the destination folder does not exist in the satellite, pauses and proposes the structure rather than creating it silently
-4. Runs the pattern-specific transform: copy with slug adjustment (A), scope check (B), stripping pass (C), or read-only context fetch (D)
+4. Runs the pattern-specific transform: copy with slug adjustment (A), scope check (B), stripping pass (C), or authority-zone check (D)
 5. Writes to both locations when appropriate
 6. Reports both paths explicitly in the response
 7. If the content falls in an excluded zone, previews both possible destinations and asks before proceeding
@@ -210,6 +222,7 @@ On every write inside a brand-scoped folder, the agent:
 - Do not mirror notes flagged `mutability: review-first`, `internal-only`, `partner-confidential`, or `pre-disclosure` without explicit user approval.
 - Do not assume the central brain is wrong if a satellite disagrees. The central brain wins by default.
 - Do not attempt to invert the system later by treating a satellite as the source of truth. If the user wants to move authorship to a satellite, that is a separate, deliberate decision.
+- Do not let a Pattern D workspace write outside its registered mount, hand-edit published context, or apply a CRM proposal directly to the canonical record.
 
 ---
 

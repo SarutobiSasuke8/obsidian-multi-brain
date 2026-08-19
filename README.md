@@ -1,6 +1,6 @@
 # obsidian-multi-brain
 
-**One vault to live in. Many downstream brains that stay in sync automatically.**
+**One vault to live in. Many governed downstream brains for people and agents.**
 
 A set of templates, operating contracts, and agent seeds for running a multi-brand Obsidian setup where a coding agent handles the filing for you.
 
@@ -20,6 +20,14 @@ This repo is that file, plus the templates and seeds to build the whole system.
 
 ---
 
+## Why this exists / strategic value
+
+Agent fleets multiply output only when they share reliable context and clear authority boundaries. This project turns a local-first Obsidian vault into a governed control plane: the human-owned vault remains canonical, public-safe context can be published to agents, bounded work can happen in authorised folders, and proposed CRM changes remain quarantined until a human imports them.
+
+The leverage comes from writing those rules once and validating them in version control. New agents can start useful work without receiving the whole private vault, while durable knowledge and final decisions stay under local ownership.
+
+---
+
 ## What is in here
 
 | File | What it does |
@@ -31,12 +39,14 @@ This repo is that file, plus the templates and seeds to build the whole system.
 | `templates/satellite-entry-point.md` | Blank entry-point note for registering a new satellite vault. One per brand. |
 | `examples/agents-md-minimal.md` | Minimal one-satellite contract for people starting simple. |
 | `examples/agents-md-with-strip.md` | Contract showing the Pattern C stripping pass in full. |
+| `examples/pattern-d-agent-bridge/` | Reproducible Pattern D fixture with a public-safe context pack, authorised workspace brief, and quarantined CRM proposal. |
 | `docs/patterns.md` | Reference for the sync patterns (A, B, C, C-strict, D, E). |
 | `docs/backflow.md` | Pattern E: the governed return path, for when something other than you writes in a satellite. |
 | `docs/agent-context-satellites.md` | Building a satellite whose reader is an agent fleet rather than a person. |
 | `docs/security.md` | Secrets, prompt injection, blast radius, and what `AGENTS.md` cannot enforce. |
 | `docs/faq.md` | Answers to the questions that come up every time this system gets explained. |
 | `examples/vault.gitignore` | Starting `.gitignore` for a vault backed up to a private git repo. |
+| `scripts/validate.py` | Dependency-free repository validator for required files, frontmatter, links, and public placeholder safety. |
 
 ---
 
@@ -52,7 +62,7 @@ Around it sit satellite brains: a dedicated brand vault, a content production re
 
 **Pattern C: stripped mirror.** The satellite is one step from public. Every write runs through a stripping pass that removes customer names, financials, competitive intel, and internal context before the note lands in the destination.
 
-**Pattern D: read-only feeder.** The agent reads the satellite for context but does not auto-write. Used for code repos or partner spaces where commit hygiene matters.
+**Pattern D: mixed-authority agent bridge.** The central vault publishes curated context into `Context/public-safe/`, agents write only inside explicitly authorised `Workspace/` scopes, and CRM changes land as proposals in `CRM/Proposals/`. Context is a derived mirror, workspace output follows the return-path review, and proposals never mutate the canonical CRM directly.
 
 The rules for which satellite gets what, and how notes get transformed on the way out, live in `AGENTS.md` at the vault root. Any coding agent reads that file on session start and files accordingly.
 
@@ -62,7 +72,7 @@ You write once. The agent handles the rest.
 
 ## When the flow reverses
 
-The four patterns above all push one way, and that holds until something other than you starts writing in a satellite. An agent with write access. A colleague. A research tool dropping exports into a folder.
+Patterns A to C push one way. Pattern D deliberately permits bounded writes, and any satellite can also receive material from an agent, a colleague, or an automated export. Once externally authored material matters to the central brain, it needs a governed return path.
 
 At that point the satellite is producing material the central brain has never seen, and the central brain quietly stops being the source of truth.
 
@@ -76,11 +86,13 @@ Two rules that are not obvious until they bite. Never sweep the folders you mirr
 
 ## When the reader is an agent, not you
 
-A satellite built for a fleet of agents behaves differently enough to need its own rules. It is organised by blast radius rather than by topic, it is fail-closed on anything sensitive, and it is validated before every push.
+A Pattern D satellite built for a fleet of agents behaves differently enough to need its own rules. It is organised by blast radius rather than by topic, it is fail-closed on anything sensitive, and every path has an explicit authority owner.
 
 - **Tiered.** A `public-safe` tier that would survive being quoted word for word in a public group chat, and nothing else, is what an externally-facing agent gets.
 - **Fail-closed.** A record exports only when a field explicitly says it can. Missing metadata means no export, not cautious export. The moment the rule becomes "export unless flagged sensitive", you have built a leak with extra steps, because the flag is the thing you forget.
 - **Derived.** Context files are distilled copies with an expiry date. Fix the master and re-push. Hand-editing a satellite copy is how this rots.
+- **Bounded writes.** Agents may write without per-note approval only under registered `Workspace/` mounts. Those artefacts are candidates for governed backflow, not silent edits to the central vault.
+- **Quarantined CRM.** Agents write proposed contact changes to `CRM/Proposals/`; a validator or human review imports accepted changes into the canonical CRM. No agent gets an implicit write path to relationship records.
 
 Full reference in [docs/agent-context-satellites.md](./docs/agent-context-satellites.md).
 
@@ -103,6 +115,16 @@ Full reference in [docs/agent-context-satellites.md](./docs/agent-context-satell
 3. Open a coding agent session and say: "implement the multi-brain system per the implementation seed."
 4. The agent runs the nine-phase protocol: reads your vault, registers your satellites, picks patterns, defines the stripping pass, writes the contract, creates entry-point notes, builds the human-readable map, builds the canvas, and runs a dry-run mirror for approval.
 5. After the dry run, turn the defaults on.
+
+### Validate this repository
+
+The validator uses only the Python standard library:
+
+```bash
+python scripts/validate.py
+```
+
+It checks the public templates and Pattern D fixture for required frontmatter, resolves local Markdown links, rejects private machine paths and unsafe placeholder residue, and confirms the three Pattern D authority zones remain documented. CI runs the same command on every push and pull request.
 
 ---
 

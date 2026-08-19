@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Recast Pattern D as a mixed-authority agent bridge with centrally published `public-safe` context, registered writable workspace mounts, and quarantined CRM proposals.
+- Added a dependency-free validator, unit tests, and GitHub Actions workflow for required files, frontmatter contracts, local links, canvas JSON, private paths, unsafe fixture placeholders, and credential-shaped fixture content.
+- Added a reproducible Pattern D fixture and extended the satellite entry-point template with an authority-zone register.
+
 ## v1.1
 
 This release covers the cases the first version did not anticipate, mostly around what happens once agents can write as well as read.

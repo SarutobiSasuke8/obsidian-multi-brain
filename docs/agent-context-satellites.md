@@ -1,14 +1,14 @@
-# Agent-context satellites
+# Pattern D: mixed-authority agent bridges
 
-Patterns A to D assume a human opens the satellite. A fifth kind of satellite exists and it behaves differently enough to need its own rules: a satellite whose reader is a fleet of agents.
+Patterns A to C assume that publication is the main job of a satellite. Pattern D exists for a different boundary: the reader and partial author is a fleet of agents.
 
 You build one when you have agents running somewhere other than your laptop, in a chat app, on a server, in a scheduled job, and they need to know things about your business without you pasting context into a prompt every time.
 
-The central brain is still the source of truth. The agent-context satellite is a **retrieval surface** built from it.
+The central brain is still the source of truth. The bridge exposes a **retrieval surface**, one or more bounded **workspaces**, and a quarantined **proposal queue** without handing agents authority over the private vault.
 
 ---
 
-## The three properties that make it different
+## The four properties that make it different
 
 ### 1. It is tiered by blast radius, not by topic
 
@@ -17,12 +17,11 @@ Do not organise agent context by subject. Organise it by what happens if the con
 | Tier | Test | Who receives it |
 |---|---|---|
 | `public-safe` | Would survive being quoted word for word by an agent in a public group chat | Any agent, including externally-facing ones |
-| `internal` | Operator-only. Business state, priorities, constraints | Agents that only ever talk to you |
-| Not exported | Credentials, exact financials, health, family, unrestricted contact data | Nothing. These stay behind a brokered lookup or stay out entirely |
+| Not exported | Internal business state, credentials, exact financials, health, family, unrestricted contact data | Nothing in the shared bridge. Keep it local or behind a separate brokered lookup. |
 
 The public-safe test is absolute and it is a blast-radius test, not a taste test. Assume the content will be repeated verbatim in the worst possible room. If you hesitate, it is not public-safe.
 
-An agent that talks to strangers gets exactly one tier. Do not build an agent that decides for itself which tier to quote from.
+An agent that talks to strangers gets exactly one tier. Do not build an agent that decides for itself which tier to quote from. If a trusted operator-only agent genuinely needs internal context, give it a separate access boundary rather than co-locating that material in the shared bridge.
 
 ### 2. It is fail-closed
 
@@ -35,14 +34,14 @@ For contact or entity records, put an access field on the record itself:
 - `contact`: an allowlisted operational card, no note body
 - `full`: the whole note
 
-Missing metadata means no export. Not "export cautiously". No export. The moment the rule is "export unless flagged sensitive" you have built a leak with extra steps, because the flag is the thing you forget.
+Every permitted record still has to pass the `public-safe` test. `full` means the whole approved public-safe note; it is not a bypass for private contact details. Missing metadata means no export. Not "export cautiously". No export. The moment the rule is "export unless flagged sensitive" you have built a leak with extra steps, because the flag is the thing you forget.
 
 Two consequences people miss:
 
 - **A place in a review queue is not an access grant.** Records queued for classification stay unexported until classified.
 - **Retrieved context reaches your model provider.** Anything an agent can pull, it can put in a prompt, and that prompt goes to whoever runs the model. Choose the narrowest tier that does the job.
 
-### 3. It is derived, never authored
+### 3. Context is derived, never authored
 
 Context files are distilled copies. The rule is uncompromising:
 
@@ -52,15 +51,31 @@ Context files are distilled copies. The rule is uncompromising:
 4. The push refuses if validation fails, and installs read-only at the destination.
 5. If context is wrong or stale, **fix the master and re-push.** Hand-editing a satellite copy is a contract violation, and it is the single most common way this system rots.
 
+### 4. Write authority is path-scoped
+
+Pattern D has three physically separate zones:
+
+| Zone | May write | Rule |
+|---|---|---|
+| `Context/public-safe/` | The central publication process | Agents read derived context. They never edit it in place. |
+| `Workspace/<mount>/` | Agents explicitly registered for that mount | Agents may create and update work artefacts without per-note approval, but cannot escape the mount. |
+| `CRM/Proposals/` | Registered agents | Agents submit append-only proposals. A separate human or importer validates and applies accepted changes. |
+
+The folder name is not the permission system by itself. Enforce the boundary with filesystem or repository permissions when possible, and keep a machine-readable register of writable mounts and their owners. An unregistered path is fail-closed.
+
+Workspace output is not canonical by default. Bring durable results back through the governed Pattern E process: preserve provenance, refuse residue, compare collisions, and record the decision. Likewise, a CRM proposal is evidence for a possible update, not permission to mutate the relationship record.
+
 ---
 
-## Frontmatter contract
+## Frontmatter contracts
+
+### Published context
 
 Every context file carries:
 
 ```yaml
 type: agent-context
-tier: public-safe        # or internal
+tier: public-safe
 master: "path/to/source/note.md"   # plain path, not a wikilink
 sync: push
 last_synced: YYYY-MM-DD
@@ -78,6 +93,35 @@ valid_until: YYYY-MM-DD    # when the claim must expire
 
 Context without an expiry date becomes a confidently wrong agent about four months later. That is worse than an agent with no context, because you stop checking it.
 
+### Authorised workspace artefacts
+
+Every workspace artefact identifies its mount and authoring authority:
+
+```yaml
+type: agent-workspace
+workspace_scope: research
+authority: agent-example
+created: YYYY-MM-DD
+mutability: living
+```
+
+The entry-point note maps `workspace_scope` to a concrete `Workspace/<mount>/` path and names the agents allowed to write there. Unknown scope or authority means quarantine, not best-effort filing.
+
+### CRM proposals
+
+CRM proposals are append-only and cannot be mistaken for canonical records:
+
+```yaml
+type: crm-proposal
+status: proposed
+source_agent: agent-example
+canonical_target: "People/example-contact.md"
+created: YYYY-MM-DD
+mutability: append-only
+```
+
+An importer may add review metadata, but only an explicit acceptance step may update `canonical_target`. Rejected proposals remain auditable or are archived according to the bridge's retention policy; agents never rewrite history to make a rejected proposal disappear.
+
 ---
 
 ## Validate before you push
@@ -90,6 +134,9 @@ The validator is the thing that makes this safe to automate. It should check:
 - review and expiry dates have not passed
 - file hashes match, so a hand-edited satellite copy is detected
 - the total bundle is within a sane size
+- every `Workspace/` file names a registered scope and authority
+- every CRM item is a `status: proposed`, append-only record under `CRM/Proposals/`
+- files do not contain private machine paths, unresolved unsafe placeholders, or credential-shaped values
 
 The push refuses on any failure. A validator you can override by habit is a validator you do not have.
 
@@ -105,7 +152,7 @@ The satellite is a retrieval surface, not one large prompt. Layer it:
 4. one approved entity or contact record
 5. a governed workspace artefact or handoff
 
-Never load an entity-scale dataset into default context. A CRM is a thing you query, not a thing you paste.
+Never load an entity-scale dataset into default context. A CRM is a thing you query through an access-controlled interface, not a thing you paste. Pattern D's proposal queue is a write quarantine, not a bulk read grant.
 
 ---
 

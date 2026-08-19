@@ -165,11 +165,11 @@ Some brands have their own dedicated satellite vault or repo outside the main va
 | `Brand A` | `Business/Brand A/` | `[path to Brand A vault or repo]` | A (full mirror) |
 | `Brand B` | `Business/Brand B/` | `[path to Brand B vault or repo]` | B (narrow mirror) |
 | `Brand C` | `Business/Brand C/` | `[path to Brand C vault or repo]` | C (stripped mirror) |
-| `Brand D` | `Business/Brand D/` | `[path to Brand D repo]` | D (read-only feeder) |
+| `Agent Bridge` | `Business/Agent Bridge/` | `[path to agent bridge]` | D (mixed-authority agent bridge) |
 
 Add a row when a new satellite is stood up. Pick a pattern. Write a brand-specific entry-point note documenting the scope and any stripping rules. See [docs/patterns.md](./docs/patterns.md) for what the patterns mean.
 
-Patterns compose. A satellite that receives stripped content and also produces its own material is Pattern C outbound and Pattern E inbound. Record both.
+Patterns compose. A satellite that receives stripped content and also produces its own material is Pattern C outbound and Pattern E inbound. Pattern D normally uses Pattern E for accepted workspace artefacts and CRM proposals. Record both.
 
 ### What auto-mirrors by default
 
@@ -196,7 +196,12 @@ For Pattern C satellites (near-publish surface, stripped):
 - Tutorials, use-case write-ups, public methodology
 - Style and identity material that is already public-safe
 
-For Pattern D satellites: nothing auto-mirrors. The agent may read for grounding only.
+For Pattern D bridges:
+
+- Only curated `public-safe` context mirrors into `Context/public-safe/`; the central publication process owns that path.
+- Registered agents may write only inside their authorised `Workspace/<mount>/` paths. Workspace output is non-canonical until Pattern E accepts it.
+- Relationship changes go to `CRM/Proposals/` as append-only `status: proposed` records. They never update the canonical CRM directly.
+- Missing path, scope, access metadata, or publication ownership means no write.
 
 ### Universal exclusions
 
@@ -209,6 +214,7 @@ Never auto-mirror to any satellite. Preview and ask, or keep central-only:
 - Competitive analysis, pricing internals, revenue and pipeline data
 - Risk registers, governance internals
 - Live customer, lead, or partner names
+- Unrestricted contact data or private relationship history
 - Anything tagged `internal-only`, `partner-confidential`, or `pre-disclosure`
 - Notes flagged `mutability: review-first` without explicit approval
 
@@ -254,7 +260,7 @@ The result should read as though the organisation wrote it. If it still reads as
 
 1. Resolve the equivalent destination path in the satellite. Mirror the satellite's existing folder shape; do not invent a new one.
 2. If the destination folder does not exist yet, pause and propose it rather than creating it silently.
-3. Apply the pattern-specific transform: copy with slug adjustment (A), scope check (B), stripping pass (C), or read-only context fetch (D).
+3. Apply the pattern-specific transform: copy with slug adjustment (A), scope check (B), stripping pass (C), or authority-zone check (D).
 4. If the satellite has a publish log or content calendar, add a draft entry there too.
 5. In responses, report both destinations explicitly so the user can verify.
 
@@ -311,16 +317,18 @@ The untrusted content rule applies in full during a backflow run.
 
 ---
 
-## Agent-context satellites
+## Pattern D agent bridges
 
 *Delete this section if no agents read from a satellite.*
 
-A satellite whose reader is an agent fleet rather than a person follows different rules. Full reference: [docs/agent-context-satellites.md](./docs/agent-context-satellites.md).
+A satellite whose reader and bounded author is an agent fleet follows different rules. Full reference: [docs/agent-context-satellites.md](./docs/agent-context-satellites.md).
 
-- **Tiered by blast radius.** `public-safe` survives being quoted verbatim in a public group chat and is the only tier externally-facing agents receive. `internal` is for agents that only ever talk to the user. Credentials, exact financials, health, family, and unrestricted contact data are not exported at any tier.
+- **Tiered by blast radius.** `public-safe` survives being quoted verbatim in a public group chat and is the only context published into the shared bridge. Internal context stays local or behind a separate access boundary. Credentials, exact financials, health, family, and unrestricted contact data are never exported.
 - **Fail-closed.** Records export only when an explicit access field permits it. Missing metadata means no export, not cautious export. A place in a review queue is not an access grant.
 - **Derived, never authored.** Context files are distilled copies carrying `type: agent-context`, `tier:`, `master:` (plain path, not a wikilink), `sync: push`, `last_synced:`, `mutability: mirror`. Current-state briefs also carry `review_after:` and `valid_until:`.
 - **Fix at the master.** If context is wrong or stale, edit the source note and re-push. Hand-editing a satellite copy is a contract violation.
+- **Bounded workspaces.** Agents write without per-note approval only under registered `Workspace/<mount>/` paths. Every artefact names its `workspace_scope` and `authority`; unknown values fail closed.
+- **Quarantined CRM proposals.** Agents write append-only `status: proposed` records under `CRM/Proposals/`. A separate acceptance step may update the canonical CRM; proposal placement is not an access grant.
 - **Validate before pushing.** The push refuses if frontmatter, tier placement, master existence, dates, or hashes fail validation.
 - **Retrieve progressively.** Identity core, then current priorities, then the domain pack the task needs, then one approved record. Never load an entity-scale dataset into default context.
 - **One publication owner per versioned path.** Overlapping write access is fine; overlapping publication rights are not.
