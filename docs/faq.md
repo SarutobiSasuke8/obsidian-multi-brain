@@ -41,7 +41,7 @@ That is Pattern E, the return path. An agent with write access, a colleague, or 
 The fix is a governed ingest, not bidirectional sync. Sweep the writable folders, refuse most of what you find, label what you keep with where it came from, and mark it processed in the satellite so the queue drains. See [`docs/backflow.md`](./backflow.md).
 
 **Can agents running elsewhere read my vault?**
-Yes, through an agent-context satellite: a retrieval surface distilled from the central brain, tiered by blast radius rather than by topic, and fail-closed on anything sensitive. See [`docs/agent-context-satellites.md`](./agent-context-satellites.md).
+They should not read the private vault directly. Pattern D publishes a curated `public-safe` retrieval surface, gives registered agents bounded `Workspace/` mounts, and quarantines relationship changes in `CRM/Proposals/`. Everything else stays unavailable unless a separate access boundary explicitly grants it. See [`docs/agent-context-satellites.md`](./agent-context-satellites.md).
 
 Two things to internalise before building one. Anything an agent can retrieve can end up in a prompt, which means it reaches whoever runs the model. And context without an expiry date becomes a confidently wrong agent about four months later, which is worse than an agent with no context at all, because you stop checking it.
 

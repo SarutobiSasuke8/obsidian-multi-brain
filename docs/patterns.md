@@ -2,7 +2,7 @@
 
 A quick reference for picking the right pattern when registering a new satellite.
 
-Patterns A to D are the original four and they all push one way. Pattern E is the return path, added once satellites started producing material of their own. Start with A to D. Add E only when something other than you is writing in a satellite.
+Patterns A to C are outbound publication patterns. Pattern D is a mixed-authority bridge for agent fleets, and Pattern E is the governed return path for material authored outside the central brain. Start with the smallest pattern that solves the actual boundary problem.
 
 ---
 
@@ -61,15 +61,23 @@ What is left should read as though the organisation wrote it, not as though some
 
 ---
 
-## Pattern D: Read-only feeder
+## Pattern D: Mixed-authority agent bridge
 
-**Use when:** the satellite needs context from the central vault but should never receive automated writes. A code repo, a partner-controlled space, a research vault for a specialist domain, anywhere commit hygiene or access control matters more than note flow.
+**Use when:** an agent fleet needs stable context plus a bounded place to work, but must not receive the private vault or write directly into canonical knowledge and relationship records.
 
-**Default behaviour:** the agent reads the satellite for grounding but does not write. Any proposed changes are captured back into the central vault first, then offered for explicit push.
+**Default behaviour:** split the satellite into three authority zones. Each zone has one owner and one permitted flow:
 
-**Typical scope:** context reads only. No auto-mirroring.
+| Zone | Authority | Flow |
+|---|---|---|
+| `Context/public-safe/` | Central publisher only | Curated, derived mirrors flow out from the central vault. Agents read but do not edit. |
+| `Workspace/` | Registered agents within named mounts | Agents may create and update work artefacts without per-note approval. Valuable outputs return through Pattern E review. |
+| `CRM/Proposals/` | Agents propose; a human or importer decides | Contact changes are append-only proposals. They remain quarantined until validated and explicitly imported into the canonical CRM. |
 
-**Watch for:** the temptation to gradually turn this into a write target. If you find yourself manually pushing content there regularly, re-evaluate whether it should be Pattern B or C instead.
+Everything outside an authorised zone is read-only or unavailable. Missing path registration, access metadata, or publication ownership means no write.
+
+**Typical scope:** public product and identity context, bounded research or delivery work, handoffs, and structured relationship-update proposals. Credentials, exact financials, private relationship history, unrestricted contact data, health, family, and confidential meetings never enter the bridge.
+
+**Watch for:** authority creep. A writable `Workspace/` is not permission to edit `Context/`; a CRM proposal is not a CRM update; a useful agent output is not canonical until the return-path review accepts it. Keep each zone physically separate and validate before publication or import.
 
 ---
 
@@ -89,7 +97,7 @@ Full protocol in [backflow.md](./backflow.md).
 
 ## The agent-context satellite
 
-Not a sync pattern so much as a different kind of destination: a satellite whose reader is a fleet of agents rather than a person. Tiered by blast radius, fail-closed on access, validated before every push, and never hand-edited. See [agent-context-satellites.md](./agent-context-satellites.md).
+Pattern D is the concrete form of an agent-context satellite: a retrieval surface plus bounded work and proposal zones. Context is tiered by blast radius, fail-closed on access, validated before every push, and never hand-edited. See [agent-context-satellites.md](./agent-context-satellites.md).
 
 Most people will never need this. You need it when agents run somewhere other than your laptop and need to know things about your business without you pasting context each time.
 
@@ -103,12 +111,13 @@ Most people will never need this. You need it when agents run somewhere other th
 | Does the satellite have its own structure and a different audience? | Pattern B |
 | Is the satellite one step from public, requiring a strip? | Pattern C |
 | Is the satellite a shared team surface where your voice should not appear? | Pattern C-strict |
-| Should writes always be human-reviewed before landing? | Pattern D |
+| Does an agent fleet need public-safe context plus a bounded writable workspace? | Pattern D |
+| Should contact changes remain proposals until separately validated and imported? | Pattern D |
 | Does the satellite need both a strip AND a PR review? | Pattern C, paired with a branch/PR workflow in the satellite repo |
 | Does anything other than you write in the satellite? | Add Pattern E on top of whatever else applies |
 | Is the reader an agent rather than a person? | Agent-context satellite |
 
-Patterns compose. A satellite can be Pattern C outbound and Pattern E inbound at the same time, and usually is once agents are involved.
+Patterns compose. A satellite can be Pattern C outbound and Pattern E inbound at the same time. Pattern D normally uses Pattern E for accepted workspace artefacts and CRM proposals, without granting the agent write access to the central brain.
 
 A satellite can also graduate. If a Pattern B satellite starts receiving near-public content regularly, add Pattern C rules for that content slice. Update `AGENTS.md` and the satellite's entry-point note.
 

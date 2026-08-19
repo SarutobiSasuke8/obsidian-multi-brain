@@ -4,6 +4,7 @@ type: satellite-entry-point
 brand: "[Brand Name]"
 satellite-root: "[absolute path to the satellite vault or repo]"
 pattern: "[A / B / C / D]"
+authority-model: "[single-owner / mixed-authority]"
 mutability: living
 created: YYYY-MM-DD
 ---
@@ -81,6 +82,33 @@ How this brand's main-vault folders map to satellite folders:
 |---|---|
 | `Business/[Brand]/[Folder]/` | `[satellite folder]` |
 | [Add rows as needed] | |
+
+---
+
+## Authority zones (Pattern D only)
+
+*Delete this section if not using Pattern D.*
+
+| Zone | Path | Publication or write owner | Allowed flow |
+|---|---|---|---|
+| Curated context | `Context/public-safe/` | [central publication process] | Derived mirrors flow out; agents read only |
+| Agent workspace | `Workspace/[mount]/` | [registered agent or process] | Work artefacts may be authored here; accepted results use Pattern E |
+| CRM quarantine | `CRM/Proposals/` | [agents propose; reviewer or importer decides] | Append-only proposals; never direct canonical CRM writes |
+
+### Workspace mount register
+
+| Mount | Purpose | Allowed authorities | Retention / return path |
+|---|---|---|---|
+| `Workspace/[mount]/` | [bounded work purpose] | [agent ids or process ids] | [retention rule and Pattern E destination] |
+
+Missing mount or authority registration means no write. Context is `public-safe` only; internal context belongs behind a separate access boundary.
+
+### CRM proposal gate
+
+- Required proposal fields: `type: crm-proposal`, `status: proposed`, `source_agent`, `canonical_target`, `created`, `mutability: append-only`.
+- Reviewer or importer: [human or process that may accept a proposal].
+- Canonical CRM boundary: [path or system that agents cannot write directly].
+- Rejected proposal retention: [archive or retention rule].
 
 ---
 
